@@ -5,22 +5,20 @@ local TweenService = game:GetService("TweenService")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
--- Configuración inicial
-local currentReach = 1.5  -- Valor por defecto
+-- CONFIG
+local currentReach = 1.5
 local reachEnabled = true
 local minimized = false
-local minimizedPosition = UDim2.new(0.8, 0, 0.7, 0)  -- Posición cuando está minimizado
-local expandedPosition = UDim2.new(0.5, -150, 0.5, -75)  -- Posición normal centrada
+local minimizedPosition = UDim2.new(0.9, 0, 0.8, 0)
+local expandedPosition = UDim2.new(0.5, -150, 0.5, -75)
 
--- Crear la GUI
-local screenGui = Instance.new("ScreenGui")
+-- GUI
+local screenGui = Instance.new("ScreenGui", playerGui)
 screenGui.Name = "ReachGUI"
 screenGui.ResetOnSpawn = false
 screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-screenGui.Parent = playerGui
 
 local mainFrame = Instance.new("Frame")
-mainFrame.Name = "MainFrame"
 mainFrame.Size = UDim2.new(0, 300, 0, 150)
 mainFrame.Position = expandedPosition
 mainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -30,220 +28,153 @@ mainFrame.Active = true
 mainFrame.Draggable = true
 mainFrame.Parent = screenGui
 
-local title = Instance.new("TextLabel")
-title.Name = "Title"
+local title = Instance.new("TextLabel", mainFrame)
 title.Size = UDim2.new(1, 0, 0, 30)
-title.Position = UDim2.new(0, 0, 0, 0)
 title.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 title.BorderSizePixel = 0
-title.Text = "Ajuste de Reach R6"
+title.Text = "Reach Ajustable (R6)"
 title.TextColor3 = Color3.new(1, 1, 1)
 title.Font = Enum.Font.SourceSansBold
 title.TextSize = 18
-title.Parent = mainFrame
 
-local sliderContainer = Instance.new("Frame")
-sliderContainer.Name = "SliderContainer"
-sliderContainer.Size = UDim2.new(0.9, 0, 0, 40)
-sliderContainer.Position = UDim2.new(0.05, 0, 0.3, 0)
-sliderContainer.BackgroundTransparency = 1
-sliderContainer.Parent = mainFrame
+local label = Instance.new("TextLabel", mainFrame)
+label.Position = UDim2.new(0.05, 0, 0.3, 0)
+label.Size = UDim2.new(0.9, 0, 0, 20)
+label.BackgroundTransparency = 1
+label.TextColor3 = Color3.new(1, 1, 1)
+label.Text = "Reach: " .. currentReach
+label.Font = Enum.Font.SourceSans
+label.TextSize = 16
 
-local sliderLabel = Instance.new("TextLabel")
-sliderLabel.Name = "SliderLabel"
-sliderLabel.Size = UDim2.new(1, 0, 0, 20)
-sliderLabel.Position = UDim2.new(0, 0, 0, 0)
-sliderLabel.BackgroundTransparency = 1
-sliderLabel.Text = "Multiplicador de Reach: "..string.format("%.1f", currentReach)
-sliderLabel.TextColor3 = Color3.new(1, 1, 1)
-sliderLabel.Font = Enum.Font.SourceSans
-sliderLabel.TextSize = 16
-sliderLabel.Parent = sliderContainer
-
-local slider = Instance.new("Frame") -- Slider base
-slider.Name = "ReachSlider"
-slider.Size = UDim2.new(1, 0, 0, 20)
-slider.Position = UDim2.new(0, 0, 0, 20)
+local slider = Instance.new("TextBox", mainFrame)
+slider.Position = UDim2.new(0.05, 0, 0.5, 0)
+slider.Size = UDim2.new(0.9, 0, 0, 30)
+slider.Text = tostring(currentReach)
 slider.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-slider.BorderSizePixel = 0
-slider.Parent = sliderContainer
+slider.TextColor3 = Color3.new(1, 1, 1)
+slider.Font = Enum.Font.SourceSans
+slider.TextSize = 18
+slider.ClearTextOnFocus = false
 
-local sliderFill = Instance.new("Frame") -- Slider relleno
-sliderFill.Name = "SliderFill"
-sliderFill.Size = UDim2.new((currentReach - 1) / 2, 0, 1, 0)
-sliderFill.Position = UDim2.new(0, 0, 0, 0)
-sliderFill.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
-sliderFill.BorderSizePixel = 0
-sliderFill.Parent = slider
+local toggle = Instance.new("TextButton", mainFrame)
+toggle.Position = UDim2.new(0.05, 0, 0.75, 0)
+toggle.Size = UDim2.new(0.4, 0, 0, 30)
+toggle.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+toggle.TextColor3 = Color3.new(1, 1, 1)
+toggle.Text = "DESACTIVAR"
+toggle.Font = Enum.Font.SourceSansBold
+toggle.TextSize = 16
 
-local toggleButton = Instance.new("TextButton")
-toggleButton.Name = "ToggleButton"
-toggleButton.Size = UDim2.new(0.4, 0, 0, 30)
-toggleButton.Position = UDim2.new(0.05, 0, 0.7, 0)
-toggleButton.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
-toggleButton.BorderSizePixel = 0
-toggleButton.Text = "DESACTIVAR"
-toggleButton.TextColor3 = Color3.new(1, 1, 1)
-toggleButton.Font = Enum.Font.SourceSansBold
-toggleButton.TextSize = 16
-toggleButton.Parent = mainFrame
+local minimize = Instance.new("TextButton", mainFrame)
+minimize.Position = UDim2.new(0.55, 0, 0.75, 0)
+minimize.Size = UDim2.new(0.4, 0, 0, 30)
+minimize.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+minimize.TextColor3 = Color3.new(1, 1, 1)
+minimize.Text = "MINIMIZAR"
+minimize.Font = Enum.Font.SourceSansBold
+minimize.TextSize = 16
 
-local minimizeButton = Instance.new("TextButton")
-minimizeButton.Name = "MinimizeButton"
-minimizeButton.Size = UDim2.new(0.4, 0, 0, 30)
-minimizeButton.Position = UDim2.new(0.55, 0, 0.7, 0)
-minimizeButton.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-minimizeButton.BorderSizePixel = 0
-minimizeButton.Text = "MINIMIZAR"
-minimizeButton.TextColor3 = Color3.new(1, 1, 1)
-minimizeButton.Font = Enum.Font.SourceSansBold
-minimizeButton.TextSize = 16
-minimizeButton.Parent = mainFrame
+local minimizedBtn = Instance.new("TextButton", screenGui)
+minimizedBtn.Size = UDim2.new(0, 60, 0, 40)
+minimizedBtn.Position = minimizedPosition
+minimizedBtn.AnchorPoint = Vector2.new(0.5, 0.5)
+minimizedBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+minimizedBtn.Text = "R"
+minimizedBtn.TextColor3 = Color3.new(1, 1, 1)
+minimizedBtn.Font = Enum.Font.SourceSansBold
+minimizedBtn.TextSize = 20
+minimizedBtn.Visible = false
 
-local minimizedButton = Instance.new("TextButton")
-minimizedButton.Name = "MinimizedButton"
-minimizedButton.Size = UDim2.new(0, 60, 0, 40)
-minimizedButton.Position = minimizedPosition
-minimizedButton.AnchorPoint = Vector2.new(0.5, 0.5)
-minimizedButton.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
-minimizedButton.BorderSizePixel = 0
-minimizedButton.Text = "R"
-minimizedButton.TextColor3 = Color3.new(1, 1, 1)
-minimizedButton.Font = Enum.Font.SourceSansBold
-minimizedButton.TextSize = 20
-minimizedButton.Visible = false
-minimizedButton.Parent = screenGui
+-- FUNCIONES
+local function createHitboxForLeg(leg)
+    if not leg then return end
 
--- Funciones
+    local existing = leg:FindFirstChild("ReachHitbox")
+    if existing then existing:Destroy() end
 
-local function updateCharacterReach(character)
-    if reachEnabled and character and character:FindFirstChild("Humanoid") and character.Humanoid.RigType == Enum.HumanoidRigType.R6 then
-        local rightLeg = character:FindFirstChild("Right Leg") or character:WaitForChild("Right Leg")
-        if rightLeg then
-            local hitbox = rightLeg:FindFirstChild("HitboxAdornment")
-            if not hitbox then
-                hitbox = Instance.new("BoxHandleAdornment")
-                hitbox.Name = "HitboxAdornment"
-                hitbox.Adornee = rightLeg
-                hitbox.AlwaysOnTop = true
-                hitbox.ZIndex = 1
-                hitbox.Transparency = 0.7
-                hitbox.Color3 = Color3.new(1, 0, 0)
-                hitbox.Parent = rightLeg
-            end
-            hitbox.Size = Vector3.new(
-                rightLeg.Size.X * currentReach,
-                rightLeg.Size.Y * currentReach,
-                rightLeg.Size.Z * currentReach
-            )
+    local part = Instance.new("Part")
+    part.Name = "ReachHitbox"
+    part.Size = Vector3.new(1 * currentReach, 1.5 * currentReach, 1 * currentReach)
+    part.Transparency = 1
+    part.Anchored = false
+    part.CanCollide = false
+    part.CanTouch = true
+    part.Massless = true
+    part.Parent = leg
+
+    local weld = Instance.new("WeldConstraint")
+    weld.Part0 = leg
+    weld.Part1 = part
+    weld.Parent = part
+    part.CFrame = leg.CFrame
+
+    part.Touched:Connect(function(hit)
+        if not hit:IsDescendantOf(Players.LocalPlayer.Character) then
+            print("Tocado:", hit.Name)
         end
-    else
-        -- Limpiar hitbox si existe
-        if character and character:FindFirstChild("Right Leg") then
-            local rightLeg = character:FindFirstChild("Right Leg")
-            local hitbox = rightLeg:FindFirstChild("HitboxAdornment")
-            if hitbox then
-                hitbox:Destroy()
+    end)
+end
+
+local function updateHitboxes()
+    local char = player.Character
+    if not char then return end
+    if not reachEnabled then
+        for _, limb in ipairs({"Right Leg", "Left Leg"}) do
+            local leg = char:FindFirstChild(limb)
+            if leg then
+                local h = leg:FindFirstChild("ReachHitbox")
+                if h then h:Destroy() end
             end
+        end
+        return
+    end
+
+    for _, limb in ipairs({"Right Leg", "Left Leg"}) do
+        local leg = char:FindFirstChild(limb)
+        if leg then
+            createHitboxForLeg(leg)
         end
     end
 end
 
-local function toggleMinimize()
-    minimized = not minimized
-    if minimized then
-        minimizedButton.Visible = true
-        local tween = TweenService:Create(
-            mainFrame,
-            TweenInfo.new(0.3, Enum.EasingStyle.Quad),
-            {Position = UDim2.new(2, 0, 0.5, -75)} -- Fuera de pantalla
-        )
-        tween:Play()
-        tween.Completed:Connect(function()
-            mainFrame.Visible = false
-        end)
+-- EVENTOS GUI
+slider.FocusLost:Connect(function()
+    local val = tonumber(slider.Text)
+    if val and val >= 1 and val <= 3 then
+        currentReach = val
+        label.Text = "Reach: " .. val
+        updateHitboxes()
     else
-        mainFrame.Visible = true
-        minimizedButton.Visible = false
-        local tween = TweenService:Create(
-            mainFrame,
-            TweenInfo.new(0.3, Enum.EasingStyle.Quad),
-            {Position = expandedPosition}
-        )
-        tween:Play()
-    end
-end
-
--- Slider funcionalidad (drag horizontal)
-local UserInput = UserInputService
-local dragging = false
-local dragInput
-local dragStart
-local startPos
-
-slider.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        dragging = true
-        dragStart = input.Position
-        startPos = sliderFill.Size.X.Scale
+        slider.Text = tostring(currentReach)
     end
 end)
 
-slider.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-        dragInput = input
-    end
-end)
-
-UserInput.InputChanged:Connect(function(input)
-    if dragging and input == dragInput then
-        local delta = input.Position.X - dragStart.X
-        local sizeScale = math.clamp(startPos + delta / slider.AbsoluteSize.X, 0, 1)
-        sliderFill.Size = UDim2.new(sizeScale, 0, 1, 0)
-        currentReach = 1 + sizeScale * 2 -- Min 1, Max 3
-        sliderLabel.Text = "Multiplicador de Reach: "..string.format("%.1f", currentReach)
-        if player.Character then
-            updateCharacterReach(player.Character)
-        end
-    end
-end)
-
-UserInput.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        dragging = false
-    end
-end)
-
-toggleButton.MouseButton1Click:Connect(function()
+toggle.MouseButton1Click:Connect(function()
     reachEnabled = not reachEnabled
-    if reachEnabled then
-        toggleButton.Text = "DESACTIVAR"
-        toggleButton.BackgroundColor3 = Color3.fromRGB(255, 60, 60)
-    else
-        toggleButton.Text = "ACTIVAR"
-        toggleButton.BackgroundColor3 = Color3.fromRGB(60, 255, 60)
-    end
-    if player.Character then
-        updateCharacterReach(player.Character)
-    end
+    toggle.Text = reachEnabled and "DESACTIVAR" or "ACTIVAR"
+    updateHitboxes()
 end)
 
-minimizeButton.MouseButton1Click:Connect(toggleMinimize)
-minimizedButton.MouseButton1Click:Connect(toggleMinimize)
-
--- Ajustes para móvil
-if UserInput.TouchEnabled then
-    mainFrame.Draggable = false -- Mejor experiencia táctil
-    toggleButton.Size = UDim2.new(0.4, 0, 0, 40)
-    minimizeButton.Size = UDim2.new(0.4, 0, 0, 40)
-    minimizedButton.Size = UDim2.new(0, 70, 0, 50)
-end
-
--- Detectar cambios de personaje
-player.CharacterAdded:Connect(function(character)
-    updateCharacterReach(character)
+minimize.MouseButton1Click:Connect(function()
+    minimized = true
+    minimizedBtn.Visible = true
+    mainFrame.Visible = false
 end)
 
-if player.Character then
-    updateCharacterReach(player.Character)
+minimizedBtn.MouseButton1Click:Connect(function()
+    minimized = false
+    minimizedBtn.Visible = false
+    mainFrame.Visible = true
+end)
+
+-- MOBILE SUPPORT
+if UserInputService.TouchEnabled then
+    mainFrame.Draggable = false
+    toggle.Size = UDim2.new(0.4, 0, 0, 40)
+    minimize.Size = UDim2.new(0.4, 0, 0, 40)
+    minimizedBtn.Size = UDim2.new(0, 70, 0, 50)
 end
+
+-- ACTUALIZAR HITBOX CUANDO APARECE
+player.CharacterAdded:Connect(updateHitboxes)
+if player.Character then updateHitboxes() end
